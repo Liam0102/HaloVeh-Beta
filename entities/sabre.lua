@@ -161,7 +161,7 @@ if CLIENT then
 		local self = p:GetNetworkedEntity("Sabre", NULL)
 		if(IsValid(self)) then
 			local fpvPos = self:GetPos()+self:GetUp()*130+self:GetForward()*-150;
-			View = SWVehicleView(self,975,285,fpvPos,true);		
+			View = HALOVehicleView(self,975,285,fpvPos,true);		
 			return View;
 		end
 	end

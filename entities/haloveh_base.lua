@@ -6,7 +6,7 @@ ENT.AutomaticFrameAdvance = true;
 ENT.IsHALOVehicle = true;
 
 if SERVER then
-function CreateBulletStructure(dmg,color,nosplashdamage)
+function HALOCreateBulletStructure(dmg,color,nosplashdamage)
 	if(color == "blue" and dmg/2 > 30) then
 		dmg = 30;
 	elseif(color == "blue" and dmg/2 <= 30) then
@@ -143,7 +143,7 @@ function ENT:Initialize()
     end
 	
 	if(not self.Bullet) then
-		self.Bullet = CreateBulletStructure(75,"red");
+		self.Bullet = HALOCreateBulletStructure(75,"red");
 	end
 
 	
@@ -225,7 +225,7 @@ function ENT:ConfigVars()
 						self:SetNWInt("StartHealth",tonumber(Value));
 						self:SetNWInt("Health",tonumber(Value));
 					elseif(Key == "WEAPONDAMAGE") then
-						self.Bullet = CreateBulletStructure(tonumber(Value),string.Split(self.Bullet.TracerName,"_")[1]);
+						self.Bullet = HALOCreateBulletStructure(tonumber(Value),string.Split(self.Bullet.TracerName,"_")[1]);
 					elseif(Key == "FORWARDSPEED") then
 						self.ForwardSpeed = tonumber(Value);
 						self.OGForward = self.ForwardSpeed;
@@ -239,7 +239,7 @@ function ENT:ConfigVars()
 						if(Value == "false") then
 							b = false;
 						end
-						self.Bullet = CreateBulletStructure(self.Bullet.Damage,string.Split(self.Bullet.TracerName,"_")[1],b);
+						self.Bullet = HALOCreateBulletStructure(self.Bullet.Damage,string.Split(self.Bullet.TracerName,"_")[1],b);
 					elseif(Key == "COLLISIONMULTIPLIER") then
 						self.CollisionDamageMulti = tonumber(Value);
 					end
@@ -1300,7 +1300,7 @@ if CLIENT then
 		if(IsValid(avatar)) then
 			local p = LocalPlayer();
 			local Flying = p:GetNWBool("Flying"..self.Vehicle);
-			if(Flying and (SW_GetFPV() or self:GetFPV())) then
+			if(Flying and (HALO_GetFPV() or self:GetFPV())) then
 				avatar:SetNoDraw(true);
 			else
 				avatar:DrawModel();
@@ -1357,7 +1357,7 @@ if CLIENT then
 			FPV = false;
 		end
 		
-		LocalPlayer().SW_ViewDistance = LocalPlayer().SW_ViewDistance or 0;
+		LocalPlayer().HALO_ViewDistance = LocalPlayer().HALO_ViewDistance or 0;
 		self.Filter = self:GetChildEntities();
 	end
 
@@ -1444,7 +1444,7 @@ if CLIENT then
 			end
 			
 			if(input.IsMouseDown(MOUSE_MIDDLE)) then
-				p.SW_ViewDistance = 0;
+				p.HALO_ViewDistance = 0;
 			elseif(input.IsKeyDown(KEY_H) and self.NextHide < CurTime() and !p.HALOVehicles_IsChatting) then
 				if(p.HALO_HideHud) then
 					p.HALO_HideHud = false;
@@ -1533,15 +1533,15 @@ if CLIENT then
 		LocalPlayer().HALOVehicles_IsChatting = false;	
 	end)
 	
-	hook.Add("PlayerBindPress","SWMouseWheel", function( p, bind, pressed )
+	hook.Add("PlayerBindPress","HALO_MouseWheel", function( p, bind, pressed )
 		
 		if(p.IsFlying) then
 			if(bind == "invnext") then
-				p.SW_ViewDistance = p.SW_ViewDistance + 5;
+				p.HALO_ViewDistance = p.HALO_ViewDistance + 5;
 			elseif(bind == "invprev") then
-				p.SW_ViewDistance = p.SW_ViewDistance - 5;
+				p.HALO_ViewDistance = p.HALO_ViewDistance - 5;
 			end
-			p.SW_ViewDistance = math.Clamp(p.SW_ViewDistance,-500,500)
+			p.HALO_ViewDistance = math.Clamp(p.HALO_ViewDistance,-500,500)
 		end
 		
 	end);
@@ -1579,7 +1579,7 @@ if CLIENT then
 	end
 	
 	local View = {};
-	function SWVehicleView(self,dist,udist,fpv_pos,lookaround)
+	function HALO_VehicleView(self,dist,udist,fpv_pos,lookaround)
 		local p = LocalPlayer();
 		local pos,face;
 			
@@ -1600,14 +1600,14 @@ if CLIENT then
 			else
 				local aim = LocalPlayer():GetAimVector();
 				//aim:Rotate(self:GetAngles())
-				local tpos = self:GetPos()+self:GetUp()*udist+aim:GetNormal()*-(dist+p.SW_ViewDistance);
+				local tpos = self:GetPos()+self:GetUp()*udist+aim:GetNormal()*-(dist+p.HALO_ViewDistance);
 				local tr = util.TraceLine({
 					start = self:GetPos(),
 					endpos = tpos,
 					filter = self.Filter,
 				})
 				pos = tr.HitPos or tpos;
-			//	pos = self:GetPos()+self:GetUp()*udist+self:GetForward()*-(dist+p.SW_ViewDistance);
+			//	pos = self:GetPos()+self:GetUp()*udist+self:GetForward()*-(dist+p.HALO_ViewDistance);
 				face = ((self:GetPos() + Vector(0,0,100))- pos):Angle();
 			//	face = self:GetAngles();
 			end
@@ -2033,7 +2033,7 @@ if CLIENT then
 		return self.IsFPV;
 	end
 	
-	function SW_GetFPV()
+	function HALO_GetFPV()
 		return FPV;
 	end
 end

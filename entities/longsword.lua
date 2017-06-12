@@ -266,7 +266,7 @@ if CLIENT then
                 else
                     pos = self:GetPos()+self:GetUp()*650+LocalPlayer():GetAimVector():GetNormal()*-1300;			
                     face = ((self:GetPos() + Vector(0,0,100))- pos):Angle()
-                    View =  SWVehicleView(self,2080,480,fpvPos,true);
+                    View =  HALOVehicleView(self,2080,480,fpvPos,true);
                 end
 
                 lastpos = pos;
@@ -278,7 +278,7 @@ if CLIENT then
             local v = p:GetNWEntity("LongswordSeat",NULL);
             if(IsValid(v)) then
                 if(v:GetThirdPersonMode()) then
-                    return SWVehicleView(self,1880,480,fpvPos);
+                    return HALOVehicleView(self,1880,480,fpvPos);
                 end
             end
         end

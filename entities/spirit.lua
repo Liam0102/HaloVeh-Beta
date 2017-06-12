@@ -299,14 +299,14 @@ if CLIENT then
 		if(Flying) then
 			if(IsValid(self)) then
 				local fpvPos = self:GetPos()+self:GetUp()*155+self:GetForward()*210;
-				View = SWVehicleView(self,1250,400,fpvPos,true);		
+				View = HALOVehicleView(self,1250,400,fpvPos,true);		
 				return View;
 			end
 		elseif(Sitting) then
 			local v = p:GetNWEntity("SpiritSeat");	
 			if(IsValid(v)) then
 				if(v:GetThirdPersonMode()) then
-					View = SWVehicleView(self,950,500,fpvPos);		
+					View = HALOVehicleView(self,950,500,fpvPos);		
 					return View;
 				end
 			end

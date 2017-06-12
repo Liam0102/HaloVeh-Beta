@@ -138,7 +138,7 @@ if CLIENT then
 		local self = p:GetNetworkedEntity("Banshee", NULL)
 		if(IsValid(self)) then
 			local fpvPos = self:GetPos()+self:GetUp()*67.5+self:GetForward()*-31;
-			View = SWVehicleView(self,575,125,fpvPos,true);		
+			View = HALOVehicleView(self,575,125,fpvPos,true);		
 			return View;
 		end
 	end

@@ -545,7 +545,7 @@ if CLIENT then
 			else
 				pos = self:GetPos()+self:GetUp()*350+LocalPlayer():GetAimVector():GetNormal()*5000;			
 				face = ((self:GetPos() + Vector(0,0,100))- pos):Angle()
-				View =  SWVehicleView(self,-3000,250,fpvPos);
+				View =  HALOVehicleView(self,-3000,250,fpvPos);
 			end
 			
 			lastpos = pos;
