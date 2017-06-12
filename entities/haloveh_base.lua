@@ -865,7 +865,7 @@ end
 
 function ENT:FireBlast(pos,gravity,vel,dmg,white,size,snd)
 	if(self.NextUse.FireBlast < CurTime()) then
-		local e = ents.Create("cannon_blast");
+		local e = ents.Create("plasma_blast");
 		
 		e.Damage = dmg or 600;
 		e.IsWhite = white or false;
@@ -873,7 +873,7 @@ function ENT:FireBlast(pos,gravity,vel,dmg,white,size,snd)
 		e.EndSize = e.StartSize*0.75 or 15;
 		
 		
-		local sound = snd or Sound("weapons/n1_cannon.wav");
+		local sound = snd or Sound("weapons/banshee_shoot.wav");
 		
 		e:SetPos(pos);
 		e:Spawn();
@@ -890,7 +890,7 @@ end
 
 function ENT:FireTorpedo(pos,target,vel,dmg,c,size,ion,snd)
 
-	local e = ents.Create("torpedo_blast");
+	local e = ents.Create("guided_blast");
 	
 	e.Damage = dmg or 600;
 	e.SpriteColour = c or Color(255,255,255,255);
@@ -898,7 +898,7 @@ function ENT:FireTorpedo(pos,target,vel,dmg,c,size,ion,snd)
 	e.EndSize = e.StartSize*0.75 or 15;
 	e.Ion = ion or false;
 	
-	local sound = snd or Sound("weapons/n1_cannon.wav");
+	local sound = snd or Sound("weapons/hornet_missle.wav");
 	e:SetPos(pos);
 	e:SetAngles(self:GetAngles())
 	e:SetCollisionGroup(COLLISION_GROUP_PROJECTILE);
@@ -939,7 +939,7 @@ function ENT:Handbrake()
 	self.Handbraking = true;
 end
 
-local FlightPhys = {
+local HALO_FlightPhys = {
 	secondstoarrive	= 1;
 	maxangular		= 5000;
 	maxangulardamp	= 10000;
@@ -1063,13 +1063,13 @@ function ENT:PhysicsSimulate( phys, deltatime )
                     end
 
                     if(!self.Pilot:KeyDown(IN_SCORE)) then
-                        FlightPhys.angle = ang;
+                        HALO_FlightPhys.angle = ang;
                     end
                 else
-                    FlightPhys.angle = ang;
+                    HALO_FlightPhys.angle = ang;
                 end
 
-                FlightPhys.deltatime = deltatime;
+                HALO_FlightPhys.deltatime = deltatime;
 
                 local newZ;
                 if(self.AutoCorrect or Should_AlwaysCorrect) then
@@ -1104,13 +1104,13 @@ function ENT:PhysicsSimulate( phys, deltatime )
                 end
 
                 if(newZ) then
-                    FlightPhys.pos = Vector(fPos.x,fPos.y,newZ);
+                    HALO_FlightPhys.pos = Vector(fPos.x,fPos.y,newZ);
                 else
-                    FlightPhys.pos = fPos;
+                    HALO_FlightPhys.pos = fPos;
                 end
 
                 if(!self.CriticalDamage and !self.BeingWarped) then
-                    phys:ComputeShadowControl(FlightPhys);
+                    phys:ComputeShadowControl(HALO_FlightPhys);
                 end
             elseif(self.TakeOff) then
                 if(self.Pilot:KeyDown(IN_JUMP)) then
@@ -1118,13 +1118,13 @@ function ENT:PhysicsSimulate( phys, deltatime )
                     self.TakingOff = true;
                 end
                 if(self.TakingOff) then
-                    FlightPhys.pos = self.NewPos;
+                    HALO_FlightPhys.pos = self.NewPos;
                 else
-                    FlightPhys.pos = self.LandPos;
+                    HALO_FlightPhys.pos = self.LandPos;
                 end
-                FlightPhys.angle = self:GetAngles(); --+ Vector(90 0, 0)
-                FlightPhys.deltatime = deltatime;
-                phys:ComputeShadowControl(FlightPhys);
+                HALO_FlightPhys.angle = self:GetAngles(); --+ Vector(90 0, 0)
+                HALO_FlightPhys.deltatime = deltatime;
+                phys:ComputeShadowControl(HALO_FlightPhys);
 
                 local pos = self:GetPos();
                 local takeOff = 90;
@@ -1145,10 +1145,10 @@ function ENT:PhysicsSimulate( phys, deltatime )
                 if(self.Wings) then
                     self:ToggleWings();
                 end
-                FlightPhys.angle = self.LandAngles or Angle(0,self:GetAngles().y,0); --+ Vector(90 0, 0)
-                FlightPhys.deltatime = deltatime;
-                FlightPhys.pos = self.LandPos;
-                phys:ComputeShadowControl(FlightPhys);
+                HALO_FlightPhys.angle = self.LandAngles or Angle(0,self:GetAngles().y,0); --+ Vector(90 0, 0)
+                HALO_FlightPhys.deltatime = deltatime;
+                HALO_FlightPhys.pos = self.LandPos;
+                phys:ComputeShadowControl(HALO_FlightPhys);
                 local pos = self:GetPos();
                 if(pos.z <= self.LandPos.z + 5) then
                     self.Land = false;
@@ -1172,10 +1172,10 @@ function ENT:PhysicsSimulate( phys, deltatime )
             end
         else
             if(self.ShouldStandby and (self.TakeOff or self.Docked) and self.CanStandby) then
-                FlightPhys.angle = self.StandbyAngles or Angle(0,self:GetAngles().y,0);
-                FlightPhys.deltatime = deltatime;
-                FlightPhys.pos = self:GetPos()+UP;
-                phys:ComputeShadowControl(FlightPhys);
+                HALO_FlightPhys.angle = self.StandbyAngles or Angle(0,self:GetAngles().y,0);
+                HALO_FlightPhys.deltatime = deltatime;
+                HALO_FlightPhys.pos = self:GetPos()+UP;
+                phys:ComputeShadowControl(HALO_FlightPhys);
             end
         end
 	end
