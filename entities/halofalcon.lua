@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "UH-144 Falcon"
-ENT.Author = "Liam0102, Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: UNSC"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -45,7 +46,7 @@ function ENT:Initialize()
 	self.ForwardSpeed = 1200;
 	self.UpSpeed = 1000;
 	self.AccelSpeed = 10;
-	self.CanStandby = true;
+	self.CanStandby = false;
 	self.CanBack = true;
 	self.CanRoll = false;
 	self.CanStrafe = true;

@@ -3,7 +3,7 @@ ENT.RenderGroup = RENDERGROUP_BOTH
 ENT.Type = "anim"
 ENT.Base = "base_anim"
 
-ENT.PrintName = "Tyrant Nuke Blast"
+ENT.PrintName = "Wraith Mortar Blast"
 ENT.Author = "Liam0102"
 ENT.Category = "Halo"
 ENT.Spawnable = false;
@@ -23,10 +23,10 @@ if SERVER then
 		self:SetColor(Color(255,255,255,1));
 		
 		self:SetNWBool("White",self.IsWhite);
-		self:SetNWInt("StartSize",self.StartSize or 85);
-		self:SetNWInt("EndSize",self.EndSize or 70);
+		self:SetNWInt("StartSize",self.StartSize or 35);
+		self:SetNWInt("EndSize",self.EndSize or 10);
 		
-		self.Damage = self.Damage or 2500;
+		self.Damage = self.Damage or 500;
 
 	end
 	
@@ -43,7 +43,7 @@ if SERVER then
 	
 	function ENT:PhysicsCollide(data, physobj)
 	
-		for i=1,math.Round(self.Damage/10) do
+		for i=1,math.Round(self.Damage/100) do
 			local pos = self:GetPos()+self:GetForward()*math.random(-self.Damage/2,self.Damage/2)+self:GetRight()*math.random(-self.Damage/2,self.Damage/2)
 			local fx = EffectData()
 				fx:SetOrigin(pos);
@@ -51,7 +51,7 @@ if SERVER then
 		end
 		for k,v in pairs(ents.FindInSphere(self:GetPos(),self.Damage)) do
 			local dist = (self:GetPos() - v:GetPos()):Length();
-			local dmg = math.Clamp((self.Damage or 1000) - dist,0,(self.Damage or 5000));
+			local dmg = math.Clamp((self.Damage or 600) - dist,0,(self.Damage or 600));
 			v:TakeDamage(dmg);
 		end
 		self:Remove()
@@ -78,14 +78,14 @@ if CLIENT then
 		local sprite;
 		local IsWhite = self:GetNWBool("White");
 		if(IsWhite) then
-			sprite = "sprites/white_blast";
+			sprite = "sprites/bluecore";
 		else
 			sprite = "sprites/bluecore";
 		end
 
 		local blue = self.FXEmitter:Add(sprite,self:GetPos())
 		blue:SetVelocity(normal)
-		blue:SetDieTime(0.2)
+		blue:SetDieTime(0.15)
 		blue:SetStartAlpha(255)
 		blue:SetEndAlpha(255)
 		blue:SetStartSize(StartSize)

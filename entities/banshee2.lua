@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "T-27 Banshee"
-ENT.Author = "Liam0102, Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -40,11 +41,11 @@ function ENT:Initialize()
 		Right = self:GetPos()+self:GetForward()*190+self:GetUp()*20+self:GetRight()*28,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 1800;
-	self.ForwardSpeed = 1800;
+	self.BoostSpeed = 2500;
+	self.ForwardSpeed = 2500;
 	self.UpSpeed = 1000;
 	self.AccelSpeed = 10;
-	self.CanStandby = true;
+	self.CanStandby = false;
 	self.CanBack = true;
 	self.CanRoll = true;
 	self.CanStrafe = true;

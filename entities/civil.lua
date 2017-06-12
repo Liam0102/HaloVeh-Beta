@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
  
 ENT.PrintName = "Civilian Transport"
 ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: UNSC"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -45,11 +46,11 @@ function ENT:Initialize()
         Right = self:GetPos()+self:GetForward()*125+self:GetUp()*75+self:GetRight()*160,
     }
     self.WeaponsTable = {};
-    self.BoostSpeed = 4000;
-    self.ForwardSpeed = 4000;
+    self.BoostSpeed = 2000;
+    self.ForwardSpeed = 2000;
     self.UpSpeed = 600;
     self.AccelSpeed = 10;
-    self.CanStandby = true;
+    self.CanStandby = false;
     self.CanBack = false;
     self.CanRoll = false;
     self.CanStrafe = true;

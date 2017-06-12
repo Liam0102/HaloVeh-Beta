@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_BOTH
-ENT.Base = "hover_base"
+ENT.Base = "halohover_base"
 ENT.Type = "vehicle"
  
 ENT.PrintName = "T-26 ACG"
 ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -60,7 +61,7 @@ end
  
 function ENT:FireBlast(pos,gravity,vel,ang)
     if(self.NextUse.FireBlast < CurTime()) then
-        local e = ents.Create("shadow_blast");
+        local e = ents.Create("wraith_blast");
         e:SetPos(pos);
         e:Spawn();
         e:Activate();

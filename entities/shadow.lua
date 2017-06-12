@@ -1,10 +1,10 @@
-
 ENT.RenderGroup = RENDERGROUP_BOTH
-ENT.Base = "hover_base"
+ENT.Base = "halohover_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "T-29 Shadow"
-ENT.Author = "Liam0102 / Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -106,8 +106,8 @@ function ENT:Think()
 				p = -300;
 			end
 			self.Turret:SetAngles(Angle(p,aim.y+180,0));
-			if(self.Pilot:KeyDown(IN_ATTACK2)) then
-				self:FireBlast(self.Turret:GetPos()+self.Turret:GetForward()*-40,true,-3,self.Turret:GetAngles():Forward());
+			if(self.Pilot:KeyDown(IN_ATTACK)) then
+				self:FireBlast(self.Turret:GetPos()+self.Turret:GetForward()*-60,true,-3,self.Turret:GetAngles():Forward());
 			end
 			lastY = aim.y;
 			self:NextThink(CurTime());
@@ -213,7 +213,8 @@ if CLIENT then
 
 			if(IsValid(DriverSeat)) then
 				if(DriverSeat:GetThirdPersonMode()) then
-					local pos = Turret:GetPos()+Turret:GetForward()*470+Turret:GetUp()*100;
+					--- local pos = Turret:GetPos()+Turret:GetForward()*470+Turret:GetUp()*100;
+					local pos = self:GetPos()+self:GetForward()*450+self:GetUp()*250;
 					local face = ((self:GetPos() + Vector(0,0,250))- pos):Angle();
 						View.origin = pos;
 						View.angles = face;

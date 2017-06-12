@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "AV-14 Hornet"
-ENT.Author = "Liam0102, Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: UNSC"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -41,11 +42,11 @@ function ENT:Initialize()
 		Right = self:GetPos()+self:GetForward()*60+self:GetUp()*100+self:GetRight()*30,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 1200;
-	self.ForwardSpeed = 1200;
-	self.UpSpeed = 1000;
+	self.BoostSpeed = 1000;
+	self.ForwardSpeed = 1000;
+	self.UpSpeed = 600;
 	self.AccelSpeed = 10;
-	self.CanStandby = true;
+	self.CanStandby = false;
 	self.CanBack = true;
 	self.CanRoll = false;
 	self.CanStrafe = true;
@@ -244,7 +245,7 @@ if CLIENT then
 		if(Flying) then
 			if(IsValid(self)) then
 				local fpvPos = self:GetPos()+self:GetUp()*70+self:GetForward()*87;
-				View = SWVehicleView(self,470,120,fpvPos,true);		
+				View = SWVehicleView(self,470,220,fpvPos,true);		
 				return View;
 			end
 		elseif(Sitting) then
@@ -288,8 +289,8 @@ if CLIENT then
 			local blue = self.FXEmitter:Add("sprites/bluecore",v+FWD*25)
 			blue:SetVelocity(normal)
 			blue:SetDieTime(0.05)
-			blue:SetStartAlpha(75)
-			blue:SetEndAlpha(10)
+			blue:SetStartAlpha(55)
+			blue:SetEndAlpha(5)
 			blue:SetStartSize(20)
 			blue:SetEndSize(1)
 			blue:SetRoll(roll)

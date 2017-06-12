@@ -23,7 +23,7 @@ if SERVER then
 		self:SetColor(Color(210,30,30,1));
 		
 		self:SetNWBool("White",self.IsWhite);
-		self:SetNWInt("StartSize",self.StartSize or 10);
+		self:SetNWInt("StartSize",self.StartSize or 30);
 		self:SetNWInt("EndSize",self.EndSize or 5);
 		
 		self.Damage = self.Damage or 50;

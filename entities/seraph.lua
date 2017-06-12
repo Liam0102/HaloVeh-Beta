@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "T-31 Seraph"
-ENT.Author = "Liam0102, Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -42,11 +43,11 @@ function ENT:Initialize()
 		TopLeft = self:GetPos()+self:GetUp()*90+self:GetRight()*-100+self:GetForward()*275,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 2000;
-	self.ForwardSpeed = 2000;
+	self.BoostSpeed = 2800;
+	self.ForwardSpeed = 2800;
 	self.UpSpeed = 1000;
 	self.AccelSpeed = 10;
-	self.CanStandby = true;
+	self.CanStandby = false;
 	self.CanBack = true;
 	self.CanRoll = true;
 	self.CanStrafe = true;

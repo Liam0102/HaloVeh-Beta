@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_BOTH
-ENT.Base = "hover_base"
+ENT.Base = "halohover_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "T-32 Ghost"
-ENT.Author = "Liam0102 / Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;

@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_BOTH
-ENT.Base = "hover_base"
+ENT.Base = "halohover_base"
 ENT.Type = "vehicle"
  
 ENT.PrintName = "Mark 2488 MAC"
 ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: UNSC"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -34,7 +35,7 @@ end
  
 function ENT:Initialize()
     self.BaseClass.Initialize(self);
-    local driverPos = self:GetPos()+self:GetUp()*187+self:GetForward()*10+self:GetRight()*-166.5;
+    local driverPos = self:GetPos()+self:GetUp()*198+self:GetForward()*10+self:GetRight()*-166.5;
     local driverAng = self:GetAngles()+Angle(0,-90,0);
     self:SpawnChairs(driverPos,driverAng,false)
    
@@ -240,8 +241,9 @@ if CLIENT then
  
             if(IsValid(DriverSeat)) then
                 if(DriverSeat:GetThirdPersonMode()) then
-                    local pos = self:GetPos()+self:GetForward()*-800+self:GetUp()*300;
-                    local face = self:GetAngles() + Angle(0,0,0);
+                    --- local pos = self:GetPos()+self:GetForward()*-800+self:GetUp()*300;
+					local pos = Cannon:GetPos()+Cannon:GetForward()*-400+Cannon:GetUp()*100;
+                    local face = Cannon:GetAngles() + Angle(0,0,0);
                         View.origin = pos;
                         View.angles = face;
                     return View;

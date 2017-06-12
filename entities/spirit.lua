@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "T-25 Spirit"
 ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -40,19 +41,19 @@ function ENT:Initialize()
 	self:SetNWInt("Health",self.StartHealth);
 	
 	self.WeaponLocations = {
-		Right = self:GetPos()+self:GetForward()*360+self:GetUp()*25+self:GetRight()*38,
-		Left = self:GetPos()+self:GetForward()*360+self:GetUp()*25+self:GetRight()*-38,
+		Right = self:GetPos()+self:GetForward()*-200+self:GetUp()*50+self:GetRight()*0,
+		Left = self:GetPos()+self:GetForward()*-200+self:GetUp()*50+self:GetRight()*0,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 1000;
-	self.ForwardSpeed = 1000;
+	self.BoostSpeed = 2000;
+	self.ForwardSpeed = 2000;
 	self.UpSpeed = 500;
-	self.AccelSpeed = 7;
+	self.AccelSpeed = 9;
 	self.CanStandby = true;
 	self.CanBack = false;
     self.CanRoll = false;
     self.CanStrafe = true;
-	self.CanShoot = false;
+	self.CanShoot = true;
 	self.DontOverheat = true;
 	self.AlternateFire = true;
 	self.FireGroup = {"Right","Left"}
@@ -60,7 +61,7 @@ function ENT:Initialize()
 	self.Cooldown = 2;
 	self.LandOffset = Vector(0,0,1);
 	
-	self.Bullet = CreateBulletStructure(70,"plasma");
+	self.Bullet = CreateBulletStructure(40,"plasma");
 	self.FireDelay = 0.15;
 	
 	self.SeatPos = {
@@ -323,6 +324,7 @@ if CLIENT then
 			HALO_HUD_DrawHull(2000);
 			HALO_HUD_Compass(self);
 			HALO_HUD_DrawSpeedometer();
+			HALO_WeaponReticles(self);
 		end
 	end
 	hook.Add("HUDPaint", "SpiritReticle", SpiritReticle)

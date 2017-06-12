@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "T-52 Phantom"
 ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: Covenant"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -44,20 +45,21 @@ function ENT:Initialize()
 		Left = self:GetPos()+self:GetForward()*380+self:GetUp()*10+self:GetRight()*0,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 1000;
-	self.ForwardSpeed = 1000;
+	self.BoostSpeed = 2000;
+	self.ForwardSpeed = 2000;
 	self.UpSpeed = 500;
-	self.AccelSpeed = 7;
+	self.AccelSpeed = 9;
 	self.CanStandby = true;
 	self.CanBack = false;
     self.CanRoll = false;
     self.CanStrafe = true;
-	self.CanShoot = true;
+	self.CanShoot = false;
 	self.DontOverheat = true;
 	self.AlternateFire = true;
 	self.FireGroup = {"Right","Left"}
 	self.HasWings = true;
 	self.Cooldown = 2;
+	self.NextBlast = 1;
 	self.LandOffset = Vector(0,0,30);
 	
 	self.Bullet = CreateBulletStructure(50,"plasma");
@@ -96,7 +98,7 @@ function ENT:Initialize()
 	self.ExitModifier = {x=0,y=95,z=175};
 
 	self.PilotVisible = true;
-	self.PilotPosition = {x=0,y=192,z=123};
+	self.PilotPosition = {x=0,y=282,z=123};
 
 	self.HasLookaround = true;
 	self.BaseClass.Initialize(self);
@@ -186,6 +188,56 @@ function ENT:ToggleWings()
 		end
 		self.NextUse.Wings = CurTime() + 1;
 	end
+end
+
+function ENT:Think()
+ 
+    if(self.Inflight) then
+        if(IsValid(self.Pilot)) then
+            if(IsValid(self.Pilot)) then 
+                if(self.Pilot:KeyDown(IN_ATTACK) and self.NextUse.FireBlast < CurTime()) then
+                    self.BlastPositions = {
+                        self:GetPos() + self:GetForward() * 380 + self:GetUp() * 10, 
+                    }
+                    self:FirePhantomShot(self.BlastPositions[self.NextBlast], false, 100,100, true, 8, Sound("weapons/banshee_shoot.wav"));
+					self.NextBlast = self.NextBlast + 1;
+					if(self.NextBlast == 2) then
+						self.NextUse.FireBlast = CurTime()+0.4;
+						self:SetNWBool("OutOfMissiles",true);
+						self:SetNWInt("FireBlast",self.NextUse.FireBlast)
+						self.NextBlast = 1;
+					end
+					
+					
+                end
+			end
+		end
+		
+		if(self.NextUse.FireBlast < CurTime()) then
+			self:SetNWBool("OutOfMissiles",false);
+		end
+        self:SetNWInt("Overheat",self.Overheat);
+        self:SetNWBool("Overheated",self.Overheated);
+    end
+    self.BaseClass.Think(self);
+end
+
+function ENT:FirePhantomShot(pos,gravity,vel,dmg,white,size,snd)
+	local e = ents.Create("shadow_blast");
+	
+	e.Damage = dmg or 600;
+	e.IsWhite = white or false;
+	e.StartSize = size or 20;
+	e.EndSize = size*0.75 or 15;
+	
+	local sound = snd or Sound("weapons/banshee_shoot.wav");
+	
+	e:SetPos(pos);
+	e:Spawn();
+	e:Activate();
+	e:Prepare(self,sound,gravity,vel);
+	e:SetColor(Color(255,255,255,1));
+	
 end
 
 end

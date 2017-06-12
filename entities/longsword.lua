@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "GA-TL1 Longsword"
-ENT.Author = "Liam0102, Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: UNSC"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -43,11 +44,11 @@ function ENT:Initialize()
 		Right = self:GetPos()+self:GetForward()*390+self:GetUp()*60+self:GetRight()*128,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 1600;
-	self.ForwardSpeed = 1600;
+	self.BoostSpeed = 2400;
+	self.ForwardSpeed = 2400;
 	self.UpSpeed = 1000;
 	self.AccelSpeed = 10;
-	self.CanStandby = true;
+	self.CanStandby = false;
 	self.CanBack = true;
 	self.CanRoll = false;
 	self.CanStrafe = true;
@@ -265,7 +266,7 @@ if CLIENT then
                 else
                     pos = self:GetPos()+self:GetUp()*650+LocalPlayer():GetAimVector():GetNormal()*-1300;			
                     face = ((self:GetPos() + Vector(0,0,100))- pos):Angle()
-                    View =  SWVehicleView(self,1880,480,fpvPos,true);
+                    View =  SWVehicleView(self,2080,480,fpvPos,true);
                 end
 
                 lastpos = pos;

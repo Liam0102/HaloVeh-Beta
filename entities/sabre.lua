@@ -1,9 +1,10 @@
 ENT.RenderGroup = RENDERGROUP_OPAQUE
-ENT.Base = "halo_base"
+ENT.Base = "haloveh_base"
 ENT.Type = "vehicle"
 
 ENT.PrintName = "YSS-1000 Sabre"
-ENT.Author = "Liam0102, Cody"
+ENT.Author = "Cody Evans"
+--- BASE AUTHOR: Liam0102 ---
 ENT.Category = "Halo Vehicles: UNSC"
 ENT.AutomaticFrameAdvance = true
 ENT.Spawnable = false;
@@ -43,11 +44,11 @@ function ENT:Initialize()
 		TopLeft = self:GetPos()+self:GetUp()*115+self:GetRight()*-57+self:GetForward()*125,
 	}
 	self.WeaponsTable = {};
-	self.BoostSpeed = 2000;
-	self.ForwardSpeed = 2000;
+	self.BoostSpeed = 2800;
+	self.ForwardSpeed = 2800;
 	self.UpSpeed = 1000;
 	self.AccelSpeed = 10;
-	self.CanStandby = true;
+	self.CanStandby = false;
 	self.CanBack = true;
 	self.CanRoll = true;
 	self.CanStrafe = true;
@@ -114,7 +115,7 @@ function ENT:Think()
 end
 
 function ENT:FireSabreBlast(pos,gravity,vel,dmg,white,size,snd)
-	local e = ents.Create("missle_blast");
+	local e = ents.Create("sabre_blast");
 	
 	e.Damage = dmg or 600;
 	e.IsWhite = white or false;
