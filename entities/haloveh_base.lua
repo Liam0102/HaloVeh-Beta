@@ -122,7 +122,6 @@ function ENT:Initialize()
 	self:StartMotionController();
 	self:SetUseType(SIMPLE_USE);
 	self:SetRenderMode(RENDERMODE_TRANSALPHA);
-	self.Hover = true;
 	self.PlayerActiveWeapon = "";
 	if(!self.Weapons) then
 		self:SpawnWeapons();
@@ -627,14 +626,6 @@ function ENT:Think()
 			end);
 		end
 		
-		if(!self.TakeOff and !self.Land) then
-			local a = math.Clamp(20 - self.Mass/1000,4,self.MaxAcceleration);
-			if(self.AccelSpeed <= 10 and self.AccelSpeed > a) then
-				a = self.AccelSpeed;
-			end
-			self.Acceleration = math.Approach(self.Acceleration,a,(a*0.03));
-		end
-		
 		if(IsValid(self.Pilot)) then
 			
 			if(self.Pilot:KeyDown(IN_USE)) then
@@ -705,23 +696,7 @@ function ENT:Think()
                 self.BoostSpeed = self.OGBoost;
                 self.ForwardSpeed = self.OGForward;
             end
-        end
-	else
-		if(self.TakeOff) then
-			self:Heal();
-		end
-		
-		if(self.Docked and !self.TakeOff) then
-			if(self.NextUse.DockCheck < CurTime()) then
-				self.Docked = false;
-				local phys = self:GetPhysicsObject();
-				if(IsValid(phys)) then
-					phys:SetMass(self.Mass);
-				end
-				self.NextUse.DockCheck = CurTime() + 10;
-			end
-		end
-		
+        end	
 	end
 
 end
@@ -956,222 +931,129 @@ function ENT:PhysicsSimulate( phys, deltatime )
 	local RIGHT = FWD:Cross(UP):GetNormalized();
 	if(!self.Done and !self.Tractored and (!self.DeactivateInWater or (self.DeactivateInWater and self:WaterLevel() < 3))) then
         if(self.Inflight and IsValid(self.Pilot)) then
-
             local pos = self:GetPos();
-
-            if(!self.TakeOff and !self.Land) then
-
-                if(!self.CriticalDamage) then
-                    if(self.Pilot:KeyDown(IN_FORWARD)) then
-                        self.Throttle.FWD = self.Throttle.FWD + self.Acceleration;
-                    elseif(self.Pilot:KeyDown(IN_BACK)) then
-                        self.Throttle.FWD = self.Throttle.FWD - self.Acceleration;
-                    elseif(self.Pilot:KeyDown(IN_RELOAD) and self.Pilot:KeyDown(IN_JUMP)) then
-                        self:Handbrake();
-                    end
-
-                    if(self.Pilot:KeyReleased(IN_RELOAD) or self.Pilot:KeyReleased(IN_JUMP)) then
-                        self.Handbraking = false;
-                    end
-
-                    local min,max;
-                    if(self.CanBack) then
-                        min = (self.ForwardSpeed*0.66)*-1;
-                    else
-                        min = 0;
-                    end
-
-                    if(self.Wings and self.HasWings or !self.HasWings) then
-                        max = self.BoostSpeed;
-                    else
-                        max = self.ForwardSpeed;
-                    end
-                    if(!self.Handbraking) then
-                        self.Throttle.FWD = math.Clamp(self.Throttle.FWD,min,max);
-                        self.Accel.FWD = math.Approach(self.Accel.FWD,self.Throttle.FWD,self.Acceleration);
-                    end
-
-                    if(self.CanRoll) then
-                        if(self.Pilot:KeyDown(IN_MOVERIGHT)) then
-                            self.Roll = self.Roll + 3;
-                            self.Throttle.RIGHT = self.UpSpeed / 1.5;
-                        elseif(self.Pilot:KeyDown(IN_MOVELEFT)) then
-                            self.Roll = self.Roll - 3;
-                            self.Throttle.RIGHT = (self.UpSpeed / 1.5)*-1;
-                        elseif(self.Pilot:KeyDown(IN_RELOAD)) then
-                            self.Roll = 0;
-                        else
-                            self.Throttle.RIGHT = 0;
-                        end
-                    elseif(self.CanStrafe) then
-                        if(self.Pilot:KeyDown(IN_MOVERIGHT)) then
-                            self.Throttle.RIGHT = self.UpSpeed / 1.2;
-                            self.Roll = 20;
-                        elseif(self.Pilot:KeyDown(IN_MOVELEFT)) then
-                            self.Throttle.RIGHT = (self.UpSpeed / 1.2)*-1;
-                            self.Roll = -20;
-                        else
-                            self.Throttle.RIGHT = 0;
-                            self.Roll = 0;
-                        end
-                        self.Accel.RIGHT = math.Approach(self.Accel.RIGHT,self.Throttle.RIGHT,self.Acceleration);
-                    end
-
-
-                    if(self.Pilot:KeyDown(IN_JUMP) and !self.Pilot:KeyDown(IN_RELOAD)) then
-                        self.Throttle.UP = self.UpSpeed;
-                    elseif(self.Pilot:KeyDown(IN_DUCK) and !self.Pilot:KeyDown(IN_RELOAD)) then
-                        self.Throttle.UP = -self.UpSpeed;
-                    else
-                        self.Throttle.UP = 0;
-                    end
-                    self.Accel.UP = math.Approach(self.Accel.UP,self.Throttle.UP,self.Acceleration*0.9);
-
-                end
-
-                local velocity = self:GetVelocity();
-                local aim = self.Pilot:GetAimVector();
-                local ang = aim:Angle();
-                local weight_roll = (phys:GetMass()/100)/1.5
-
-                local ExtraRoll = math.Clamp(math.deg(math.asin(self:WorldToLocal(pos + aim).y)),-25-weight_roll,25+weight_roll); -- Extra-roll - When you move into curves, make the shuttle do little curves too according to aerodynamic effects
-                local mul = math.Clamp((velocity:Length()/1700),0,1); -- More roll, if faster.
-                local oldRoll = ang.Roll;
-                ang.Roll = (ang.Roll + self.Roll - ExtraRoll*mul) % 360;
-                if (ang.Roll!=ang.Roll) then ang.Roll = oldRoll; end -- fix for nan values that cause despawing/crash.
-
-                if(self.Pilot:KeyDown(IN_JUMP) and self.Pilot:KeyDown(IN_DUCK)) then
-                    local tr = util.TraceLine({
-                        start = self.LandTracePos or self:GetPos(),
-                        endpos = self:GetPos()+self:GetUp()*-(self.LandDistance or 300),
-                        filter = {self:GetChildEntities()},
-                    })
-
-                    if(tr.HitWorld or (IsValid(tr.Entity) and tr.Entity:GetClass() == "prop_physics")) then
-                        self.Land = true;
-                        self.LandPos = tr.HitPos + (self.LandOffset or Vector(0,0,0));
-                        self:SetNWBool("Land",self.Land);
-                        if(IsValid(self.Pilot)) then
-                            self.Pilot:SetNWBool("HALO_Land",self.Land);
-                        end
-                    end
-                end
-
-                if(self.HasLookaround) then
-                    if(self.Pilot:KeyPressed(IN_SCORE) or self.Pilot:KeyReleased(IN_SCORE)) then
-                        self.Pilot:SetEyeAngles(self:GetAngles());
-                    end
-
-                    if(!self.Pilot:KeyDown(IN_SCORE)) then
-                        HALO_FlightPhys.angle = ang;
-                    end
+            if(!self.CriticalDamage) then
+                if(self.Pilot:KeyDown(IN_FORWARD)) then
+                    self.Accel.FWD = math.Approach(self.Accel.FWD,self.ForwardSpeed,self.AccelSpeed)
+                elseif(self.Pilot:KeyDown(IN_BACK)) then
+                    self.Accel.FWD = math.Approach(self.Accel.FWD,(self.ForwardSpeed/2)*-1,self.AccelSpeed)
+                elseif((self.Pilot:KeyDown(IN_FORWARD) and self.Pilot:KeyDown(IN_SPEED)) or self.Wings) then
+                    self.Accel.FWD = math.Approach(self.Accel.FWD,self.BoostSpeed,self.AccelSpeed)
                 else
-                    HALO_FlightPhys.angle = ang;
+                    self.Accel.FWD = math.Approach(self.Accel.FWD,0,self.AccelSpeed)
                 end
 
-                HALO_FlightPhys.deltatime = deltatime;
-
-                local newZ;
-                if(self.AutoCorrect or Should_AlwaysCorrect) then
-                    local heightTrace = util.TraceLine({
-                        start = self:GetPos(),
-                        endpos = self:GetPos()+Vector(0,0,-100),
-                        filter = {self:GetChildEntities()},
-                    })
-                    if(heightTrace.Hit) then
-                        local nextPos = self:GetPos()+(FWD*self.Accel.FWD)+(UP*self.Accel.UP)+(RIGHT*self.Accel.RIGHT);
-                        if(nextPos.z <= heightTrace.HitPos.z + 100) then
-                            newZ = heightTrace.HitPos.z + 100;
-                            self.Accel.FWD = math.Clamp(self.Accel.FWD,0,1000);
-                        end
+                if(self.CanRoll) then
+                    if(self.Pilot:KeyDown(IN_MOVERIGHT)) then
+                        self.Roll = self.Roll + 3;
+                    elseif(self.Pilot:KeyDown(IN_MOVELEFT)) then
+                        self.Roll = self.Roll - 3;
+                    elseif(self.Pilot:KeyDown(IN_RELOAD)) then
+                        self.Roll = 0;
                     end
-
-                    local forwardTrace = util.TraceLine({
-                        start = self:GetPos(),
-                        endpos = self:GetPos()+self:GetForward()*(self.ShipLength+100),
-                        filter = {self:GetChildEntities()},
-                    })
-
-                    if(forwardTrace.Hit) then
-                        self.Accel.FWD = 0;
+                elseif(self.CanStrafe) then
+                    if(self.Pilot:KeyDown(IN_MOVERIGHT)) then
+                        self.Accel.RIGHT = math.Approach(self.Accel.RIGHT,self.UpSpeed/1.2,self.AccelSpeed)
+                        self.Roll = 20;
+                    elseif(self.Pilot:KeyDown(IN_MOVELEFT)) then
+                        self.Accel.RIGHT = math.Approach(self.Accel.RIGHT,(self.UpSpeed/1.2)*-1,self.AccelSpeed)
+                        self.Roll = -20;
+                    else
+                        self.Accel.RIGHT = math.Approach(self.Accel.RIGHT,0,self.AccelSpeed)
+                        self.Roll = 0;
                     end
-
                 end
 
-                local fPos = pos+(FWD*self.Accel.FWD)+(UP*self.Accel.UP);
-                if(self.CanStrafe) then
-                    fPos = fPos+(RIGHT*self.Accel.RIGHT);
-                end
 
-                if(newZ) then
-                    HALO_FlightPhys.pos = Vector(fPos.x,fPos.y,newZ);
+                if(self.Pilot:KeyDown(IN_JUMP) and !self.Pilot:KeyDown(IN_RELOAD)) then
+                    self.Accel.UP = math.Approach(self.Accel.UP,self.UpSpeed,self.AccelSpeed)
+                elseif(self.Pilot:KeyDown(IN_DUCK) and !self.Pilot:KeyDown(IN_RELOAD)) then
+                    self.Accel.UP = math.Approach(self.Accel.UP,-self.UpSpeed,self.AccelSpeed)
                 else
-                    HALO_FlightPhys.pos = fPos;
+                    self.Accel.UP = math.Approach(self.Accel.UP,0,self.AccelSpeed)
                 end
 
-                if(!self.CriticalDamage and !self.BeingWarped) then
-                    phys:ComputeShadowControl(HALO_FlightPhys);
-                end
-            elseif(self.TakeOff) then
-                if(self.Pilot:KeyDown(IN_JUMP)) then
-                    self.NewPos = self.StartPos + (self.TakeOffVector or Vector(0,0,100));
-                    self.TakingOff = true;
-                end
-                if(self.TakingOff) then
-                    HALO_FlightPhys.pos = self.NewPos;
-                else
-                    HALO_FlightPhys.pos = self.LandPos;
-                end
-                HALO_FlightPhys.angle = self:GetAngles(); --+ Vector(90 0, 0)
-                HALO_FlightPhys.deltatime = deltatime;
-                phys:ComputeShadowControl(HALO_FlightPhys);
-
-                local pos = self:GetPos();
-                local takeOff = 90;
-                if(self.TakeOffVector) then
-                    takeOff = self.TakeOffVector.z*0.9;
-                end
-                if(pos.z >= self.StartPos.z + takeOff) then
-                    self.TakeOff = false;
-                    self:SetNWBool("TakeOff",self.TakeOff);
-                    if(IsValid(self.Pilot)) then
-                        self.Pilot:SetNWBool("HALO_TakeOff",self.TakeOff);
-                    end
-                    self.TakingOff = false;
-                    self.NewPos = nil;
-                end
-                self.Accel.FWD = 0;
-            elseif(self.Land) then
-                if(self.Wings) then
-                    self:ToggleWings();
-                end
-                HALO_FlightPhys.angle = self.LandAngles or Angle(0,self:GetAngles().y,0); --+ Vector(90 0, 0)
-                HALO_FlightPhys.deltatime = deltatime;
-                HALO_FlightPhys.pos = self.LandPos;
-                phys:ComputeShadowControl(HALO_FlightPhys);
-                local pos = self:GetPos();
-                if(pos.z <= self.LandPos.z + 5) then
-                    self.Land = false;
-                    self:SetNWBool("Land",self.Land);
-                    if(IsValid(self.Pilot)) then
-                        self.Pilot:SetNWBool("HALO_Land",self.Land);
-                    end
-                    self.StartPos = self.LandPos;
-                    self.TakeOff = true;
-                    self:SetNWBool("TakeOff",self.TakeOff);
-                    if(IsValid(self.Pilot)) then
-                        self.Pilot:SetNWBool("HALO_TakeOff",self.TakeOff);
-                    end
-                end
-                self.Accel.FWD = 0;
+                
             end
-            phys:Wake();
             self:SetNWInt("Speed",self.Accel.FWD);
             if(IsValid(self.Pilot)) then
                 self.Pilot:SetNWInt("HALO_Speed",self.Accel.FWD);
             end
+                
+            if(!self.Hover) then
+                if(self.Accel.FWD <= 50 and self.Accel.FWD >= -50 and self.Accel.RIGHT <= 50 and self.Accel.RIGHT >= -50 and self.Accel.UP <= 50 and self.Accel.UP >= -50) then return end;
+            end
+                
+            local velocity = self:GetVelocity();
+            local aim = self.Pilot:GetAimVector();
+            local ang = aim:Angle();
+            local weight_roll = (phys:GetMass()/100)/1.5
+
+            local ExtraRoll = math.Clamp(math.deg(math.asin(self:WorldToLocal(pos + aim).y)),-25-weight_roll,25+weight_roll); -- Extra-roll - When you move into curves, make the shuttle do little curves too according to aerodynamic effects
+            local mul = math.Clamp((velocity:Length()/1700),0,1); -- More roll, if faster.
+            local oldRoll = ang.Roll;
+            ang.Roll = (ang.Roll + self.Roll - ExtraRoll*mul) % 360;
+            if (ang.Roll!=ang.Roll) then ang.Roll = oldRoll; end -- fix for nan values that cause despawing/crash.
+
+            if(self.HasLookaround) then
+                if(self.Pilot:KeyPressed(IN_SCORE) or self.Pilot:KeyReleased(IN_SCORE)) then
+                    self.Pilot:SetEyeAngles(self:GetAngles());
+                end
+
+                if(!self.Pilot:KeyDown(IN_SCORE)) then
+                    HALO_FlightPhys.angle = ang;
+                end
+            else
+                HALO_FlightPhys.angle = ang;
+            end
+
+            HALO_FlightPhys.deltatime = deltatime;
+
+            local newZ;
+            if(self.AutoCorrect or Should_AlwaysCorrect) then
+                local heightTrace = util.TraceLine({
+                    start = self:GetPos(),
+                    endpos = self:GetPos()+Vector(0,0,-100),
+                    filter = {self:GetChildEntities()},
+                })
+                if(heightTrace.Hit) then
+                    local nextPos = self:GetPos()+(FWD*self.Accel.FWD)+(UP*self.Accel.UP)+(RIGHT*self.Accel.RIGHT);
+                    if(nextPos.z <= heightTrace.HitPos.z + 100) then
+                        newZ = heightTrace.HitPos.z + 100;
+                        self.Accel.FWD = math.Clamp(self.Accel.FWD,0,1000);
+                    end
+                end
+
+                local forwardTrace = util.TraceLine({
+                    start = self:GetPos(),
+                    endpos = self:GetPos()+self:GetForward()*(self.ShipLength+100),
+                    filter = {self:GetChildEntities()},
+                })
+
+                if(forwardTrace.Hit) then
+                    self.Accel.FWD = 0;
+                end
+
+            end
+            phys:Wake();
+            local fPos = pos+(FWD*self.Accel.FWD)+(UP*self.Accel.UP);
+            if(self.CanStrafe) then
+                fPos = fPos+(RIGHT*self.Accel.RIGHT);
+            end
+
+            if(newZ) then
+                HALO_FlightPhys.pos = Vector(fPos.x,fPos.y,newZ);
+            else
+                HALO_FlightPhys.pos = fPos;
+            end
+
+            if(!self.CriticalDamage and !self.BeingWarped) then
+                phys:ComputeShadowControl(HALO_FlightPhys);
+            end
+            
+
         else
-            if(self.ShouldStandby and (self.TakeOff or self.Docked) and self.CanStandby) then
+            if(self.ShouldStandby and self.CanStandby) then
                 HALO_FlightPhys.angle = self.StandbyAngles or Angle(0,self:GetAngles().y,0);
                 HALO_FlightPhys.deltatime = deltatime;
                 HALO_FlightPhys.pos = self:GetPos()+UP;
@@ -1202,7 +1084,7 @@ hook.Add("PhysgunDrop", "HALOVehStandbyDrop", HALOVehStandbyDrop);
 
 function ENT:PhysicsCollide(cdat, phys)
 
-	if(self.LastCollide < CurTime() and !self.Land and !self.TakeOff and Should_Collisions) then
+	if(self.LastCollide < CurTime() and Should_Collisions) then
 		local mass = (cdat.HitEntity:GetClass() == "worldspawn") and 1000 or cdat.HitObject:GetMass() --if it's worldspawn use 1000 (worldspawns physobj only has mass 1), else normal mass
 		
 		local s = cdat.TheirOldVelocity:Length();
@@ -1392,7 +1274,7 @@ if CLIENT then
 					self.Filter[count+1] = avatar;
 				end
 			end
-			p.IsFlying = true;
+			p.IsFlyingHalo = true;
 			-- Normal behaviour for Pilot or people who stand outside
 			self:StartClientsideSound("Engine");
 			--#########  Now add Pitch etc
